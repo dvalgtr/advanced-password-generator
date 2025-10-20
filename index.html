@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dvalgtr - Password Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #00ff41;
+            --accent-color: #003b1f;
+            --text-color: #f0f0f0;
+            --card-bg: rgba(10, 20, 15, 0.8);
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 65, 0.05) 0%, transparent 20%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #00ff41, #00cc33);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .logo-icon {
+            font-size: 32px;
+            color: var(--secondary-color);
+            filter: drop-shadow(0 0 5px var(--secondary-color));
+            animation: glow 2s infinite alternate;
+        }
+
+        /* Hamburger Menu */
+        .menu-btn {
+            background: transparent;
+            border: none;
+            color: var(--secondary-color);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .menu-btn:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background: rgba(5, 15, 10, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 80px 20px 20px;
+            transition: right 0.4s ease;
+            z-index: 999;
+            border-left: 1px solid rgba(0, 255, 65, 0.3);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        .sidebar h2 {
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 22px;
+            text-shadow: 0 0 5px var(--secondary-color);
+        }
+
+        .profile {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid var(--secondary-color);
+            box-shadow: 0 0 15px var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .social-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: rgba(0, 255, 65, 0.2);
+            transform: translateX(5px);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .social-link i {
+            font-size: 20px;
+            color: var(--secondary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 i {
+            font-size: 20px;
+        }
+
+        /* Password Generator */
+        .level-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .level-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .level-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .level-btn:hover {
+            background: rgba(0, 255, 65, 0.2);
+            transform: scale(1.05);
+        }
+
+        .level-btn.active {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 15px var(--secondary-color);
+        }
+
+        .password-display {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--secondary-color);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #00cc33, #00ff41);
+            border: none;
+            border-radius: 8px;
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.8);
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            color: var(--secondary-color);
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-btn:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        /* Security Features */
+        .security-features {
+            margin-top: 25px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .feature i {
+            color: var(--secondary-color);
+            font-size: 20px;
+        }
+
+        /* Password Strength */
+        .strength-meter {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .strength-level {
+            height: 100%;
+            width: 0%;
+            border-radius: 5px;
+            transition: all 0.5s ease;
+        }
+
+        /* Animations */
+        @keyframes glow {
+            0% {
+                filter: drop-shadow(0 0 5px var(--secondary-color));
+            }
+            100% {
+                filter: drop-shadow(0 0 15px var(--secondary-color));
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(0, 255, 65, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-key logo-icon"></i>
+                <h1>Dvalgtr Password Generator</h1>
+            </div>
+            <button class="menu-btn" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="sidebar" id="sidebar">
+            <h2>Developer Profile</h2>
+            <div class="profile">
+                <img src="https://avatars.githubusercontent.com/u/123456789?v=4" alt="Developer Avatar">
+                <h3>Dvalgtr</h3>
+                <p>Security Developer</p>
+            </div>
+            <div class="social-links">
+                <a href="https://t.me/dvalgtr" class="social-link" target="_blank">
+                    <i class="fab fa-telegram"></i>
+                    <span>Telegram</span>
+                </a>
+                <a href="https://github.com/dvalgtr" class="social-link" target="_blank">
+                    <i class="fab fa-github"></i>
+                    <span>GitHub</span>
+                </a>
+                <a href="https://tiktok.com/@dvalgtr" class="social-link" target="_blank">
+                    <i class="fab fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a href="https://twitter.com/dvalgtr" class="social-link" target="_blank">
+                    <i class="fab fa-twitter"></i>
+                    <span>Twitter</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2><i class="fas fa-lock"></i> Password Generator</h2>
+                
+                <div class="level-selector">
+                    <button class="level-btn" data-level="easy">Easy</button>
+                    <button class="level-btn" data-level="medium">Medium</button>
+                    <button class="level-btn active" data-level="hard">Hard</button>
+                    <button class="level-btn" data-level="impossible">Impossible</button>
+                </div>
+                
+                <div class="password-display">
+                    <input type="text" class="password-input" id="passwordOutput" readonly>
+                    <button class="copy-btn" id="copyBtn">
+                        <i class="far fa-copy"></i>
+                    </button>
+                </div>
+                
+                <div class="strength-meter">
+                    <div class="strength-level" id="strengthLevel"></div>
+                </div>
+                
+                <button class="generate-btn" id="generateBtn">
+                    <i class="fas fa-bolt"></i> Generate Password
+                </button>
+                
+                <button class="download-btn" id="downloadBtn">
+                    <i class="fas fa-download"></i> Download as .txt
+                </button>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-shield-alt"></i> Security Features</h2>
+                
+                <div class="security-features">
+                    <div class="feature">
+                        <i class="fas fa-user-shield"></i>
+                        <div>
+                            <h3>Anti-Brute Force</h3>
+                            <p>Password dilindungi dengan mekanisme anti brute force</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature">
+                        <i class="fas fa-random"></i>
+                        <div>
+                            <h3>Cryptographically Secure</h3>
+                            <p>Menggunakan algoritma cryptographically secure random generator</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature">
+                        <i class="fas fa-lock"></i>
+                        <div>
+                            <h3>Multi-Level Security</h3>
+                            <p>4 level keamanan dengan kompleksitas berbeda</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature">
+                        <i class="fas fa-download"></i>
+                        <div>
+                            <h3>Secure Download</h3>
+                            <p>Password dapat diunduh dengan aman dalam format .txt</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="password-info">
+                    <h3>Level Information:</h3>
+                    <ul>
+                        <li><strong>Easy:</strong> 8 karakter, huruf dan angka</li>
+                        <li><strong>Medium:</strong> 12 karakter, huruf, angka, dan simbol</li>
+                        <li><strong>Hard:</strong> 16 karakter, semua jenis karakter</li>
+                        <li><strong>Impossible:</strong> 20+ karakter dengan karakter khusus</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© Dvalgtr 2025 - Advanced Password Generator</p>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const levelButtons = document.querySelectorAll('.level-btn');
+        const generateBtn = document.getElementById('generateBtn');
+        const passwordOutput = document.getElementById('passwordOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const strengthLevel = document.getElementById('strengthLevel');
+        const toast = document.getElementById('toast');
+
+        
+        let currentLevel = 'hard';
+
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        
+        levelButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                levelButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentLevel = button.getAttribute('data-level');
+                generatePassword();
+            });
+        });
+
+        
+        const charSets = {
+            easy: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+            medium: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*',
+            hard: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?',
+            impossible: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?~`'
+        };
+
+        
+        const passwordLengths = {
+            easy: 8,
+            medium: 12,
+            hard: 16,
+            impossible: 20
+        };
+
+        
+        function generatePassword() {
+            const charset = charSets[currentLevel];
+            const length = passwordLengths[currentLevel];
+            let password = '';
+            
+            
+            if (currentLevel === 'medium' || currentLevel === 'hard' || currentLevel === 'impossible') {
+                const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+                const numbers = '0123456789';
+                const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?~`';
+                
+                password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+                password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+                password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+                
+                if (currentLevel !== 'easy') {
+                    password += symbols.charAt(Math.floor(Math.random() * symbols.length));
+                }
+            }
+            
+            
+            for (let i = password.length; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            
+            
+            password = password.split('').sort(() => 0.5 - Math.random()).join('');
+            
+            passwordOutput.value = password;
+            updateStrengthMeter();
+        }
+
+        
+        function updateStrengthMeter() {
+            let strength = 0;
+            let color = '#ff0000';
+            
+            switch(currentLevel) {
+                case 'easy':
+                    strength = 25;
+                    color = '#ff4d4d';
+                    break;
+                case 'medium':
+                    strength = 50;
+                    color = '#ffa64d';
+                    break;
+                case 'hard':
+                    strength = 75;
+                    color = '#4dff4d';
+                    break;
+                case 'impossible':
+                    strength = 100;
+                    color = '#00ff41';
+                    break;
+            }
+            
+            strengthLevel.style.width = `${strength}%`;
+            strengthLevel.style.background = color;
+            strengthLevel.style.boxShadow = `0 0 10px ${color}`;
+        }
+
+        
+        copyBtn.addEventListener('click', () => {
+            if (passwordOutput.value) {
+                navigator.clipboard.writeText(passwordOutput.value)
+                    .then(() => {
+                        showToast('Password copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        showToast('Failed to copy password');
+                    });
+            } else {
+                showToast('Generate a password first!');
+            }
+        });
+
+        
+        downloadBtn.addEventListener('click', () => {
+            if (passwordOutput.value) {
+                const blob = new Blob([`Generated Password: ${passwordOutput.value}\nLevel: ${currentLevel}\nGenerated by Dvalgtr Password Generator`], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `password_${currentLevel}_${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Password downloaded!');
+            } else {
+                showToast('Generate a password first!');
+            }
+        });
+
+        
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        
+        generatePassword();
+        generateBtn.addEventListener('click', generatePassword);
+    </script>
+</body>
+</html>
+        
