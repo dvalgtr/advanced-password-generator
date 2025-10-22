@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRA Password Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #0d0d0d;
+            --secondary: #1a1a1a;
+            --accent: #333333;
+            --text: #e0e0e0;
+            --highlight: #4a4a4a;
+            --danger: #ff4444;
+            --success: #44ff44;
+            --warning: #ffaa00;
+            --info: #4488ff;
+            --radius: 10px;
+            --transition: all 0.3s ease;
+        }
+        .light-mode {
+            --primary: #f0f0f0;
+            --secondary: #ffffff;
+            --accent: #e0e0e0;
+            --text: #333333;
+            --highlight: #cccccc;
+            --danger: #cc0000;
+            --success: #00cc00;
+            --warning: #cc8800;
+            --info: #0066cc;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--accent);
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo i {
+            color: var(--info);
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .theme-toggle:hover {
+            background-color: var(--accent);
+        }
+        .hamburger-menu {
+            position: relative;
+            cursor: pointer;
+        }
+        .hamburger-icon {
+            width: 30px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .hamburger-icon span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--text);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--secondary);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            width: 200px;
+            padding: 10px 0;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: var(--text);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .dropdown-menu a:hover {
+            background-color: var(--accent);
+        }
+        .card {
+            background-color: var(--secondary);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: var(--transition);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--accent);
+        }
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            border-bottom: 3px solid var(--info);
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 5px;
+            background: var(--accent);
+            outline: none;
+            border-radius: 5px;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--accent);
+            border: 1px solid var(--highlight);
+            border-radius: var(--radius);
+            color: var(--text);
+            transition: var(--transition);
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--info);
+        }
+        .level-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .level-btn {
+            flex: 1;
+            padding: 10px;
+            background-color: var(--accent);
+            border: none;
+            border-radius: var(--radius);
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .level-btn.active {
+            background-color: var(--highlight);
+            font-weight: bold;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .generate-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--info);
+            border: none;
+            border-radius: var(--radius);
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .generate-btn:hover {
+            background-color: var(--highlight);
+        }
+        .password-display {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .password-box {
+            background-color: var(--accent);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 1.2rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .password-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 10px 15px;
+            background-color: var(--highlight);
+            border: none;
+            border-radius: var(--radius);
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+        .copy-btn {
+            background-color: var(--info);
+            color: white;
+        }
+        .download-btn {
+            background-color: var(--success);
+            color: var(--primary);
+        }
+        .qr-btn {
+            background-color: var(--warning);
+            color: var(--primary);
+        }
+        .save-btn {
+            background-color: var(--info);
+            color: white;
+        }
+        .strength-meter {
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s, background-color 0.5s;
+        }
+        .strength-text {
+            text-align: right;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        .security-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: var(--accent);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+        }
+        .password-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .password-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--accent);
+        }
+        .password-item:last-child {
+            border-bottom: none;
+        }
+        .password-item-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .password-item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .password-item-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        .password-item-btn:hover {
+            background-color: var(--accent);
+        }
+        .qr-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--accent);
+            border-radius: var(--radius);
+        }
+        .qr-container.active {
+            display: block;
+        }
+        #qrcode {
+            margin: 0 auto;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background-color: var(--secondary);
+            padding: 20px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--accent);
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--accent);
+            margin-top: 30px;
+            color: var(--text);
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .level-buttons {
+                flex-direction: column;
+            }
+            .password-box {
+                font-size: 1rem;
+            }
+            .password-actions {
+                flex-direction: column;
+            }
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-key"></i>
+                <span>ULTRA Password Generator</span>
+            </div>
+            <div class="header-controls">
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="hamburger-menu">
+                    <div class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="https://t.me/@dvdvdvdal" target="_blank">
+                            <i class="fab fa-telegram"></i>
+                            <span>Telegram</span>
+                        </a>
+                        <a href="https://github.com/Dvalgtr" target="_blank">
+                            <i class="fab fa-github"></i>
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://tiktok.com/@dv4ldv" target="_blank">
+                            <i class="fab fa-tiktok"></i>
+                            <span>TikTok</span>
+                        </a>
+                        <a href="https://twitter.com/trashlikey0u" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                            <span>Twitter</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="card">
+                <h1><i class="fas fa-user-secret"></i> ULTRA Password Generator</h1>
+                
+                <div class="tabs">
+                    <button class="tab active" data-tab="generator">Generator</button>
+                    <button class="tab" data-tab="manager">Password Manager</button>
+                    <button class="tab" data-tab="settings">Settings</button>
+                </div>
+                
+                <!-- Generator Tab -->
+                <div class="tab-content active" id="generator-tab">
+                    <div class="form-group">
+                        <label for="password-type">Password Type:</label>
+                        <select id="password-type">
+                            <option value="random">Random Characters</option>
+                            <option value="pattern">Pattern-based</option>
+                            <option value="passphrase">Passphrase</option>
+                            <option value="pin">PIN Code</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="length">Password Length: <span id="length-value">12</span> characters</label>
+                        <div class="slider-container">
+                            <input type="range" id="length" min="4" max="50" value="12">
+                            <input type="number" id="length-input" min="4" max="50" value="12">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="pattern-group" style="display: none;">
+                        <label for="pattern">Pattern (use L for letter, D for digit, S for symbol):</label>
+                        <input type="text" id="pattern" placeholder="LLDDSSLL" value="LLDDSSLL">
+                    </div>
+                    
+                    <div class="form-group" id="passphrase-group" style="display: none;">
+                        <label for="word-count">Number of Words: <span id="word-count-value">4</span></label>
+                        <div class="slider-container">
+                            <input type="range" id="word-count" min="2" max="10" value="4">
+                            <input type="number" id="word-count-input" min="2" max="10" value="4">
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="capitalize-words" checked>
+                            <label for="capitalize-words">Capitalize Words</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="include-numbers">
+                            <label for="include-numbers">Include Numbers</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Security Level:</label>
+                        <div class="level-buttons">
+                            <button class="level-btn" data-level="easy">Easy</button>
+                            <button class="level-btn active" data-level="medium">Medium</button>
+                            <button class="level-btn" data-level="hard">Hard</button>
+                            <button class="level-btn" data-level="impossible">Impossible</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="anti-bruteforce" checked>
+                            <label for="anti-bruteforce">Enable Anti-Brute Force Protection</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="avoid-similar">
+                            <label for="avoid-similar">Avoid Similar Characters (i, l, 1, O, 0)</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="encrypt-password">
+                            <label for="encrypt-password">Encrypt Password (AES)</label>
+                        </div>
+                    </div>
+                    
+                    <button class="generate-btn" id="generate">
+                        <i class="fas fa-bolt"></i> Generate Password
+                    </button>
+                    
+                    <div class="password-display">
+                        <div class="password-box" id="password-output">
+                            Password will appear here
+                        </div>
+                        
+                        <div class="strength-meter">
+                            <div class="strength-fill" id="strength-fill"></div>
+                        </div>
+                        <div class="strength-text" id="strength-text">Strength: -</div>
+                        
+                        <div class="security-info" id="security-info">
+                            <i class="fas fa-shield-alt"></i> Estimated cracking time: -
+                        </div>
+                        
+                        <div class="password-actions">
+                            <button class="action-btn copy-btn" id="copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="action-btn download-btn" id="download">
+                                <i class="fas fa-download"></i> Download (.txt)
+                            </button>
+                            <button class="action-btn qr-btn" id="qr-generator">
+                                <i class="fas fa-qrcode"></i> QR Code
+                            </button>
+                            <button class="action-btn save-btn" id="save-password">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                        
+                        <div class="qr-container" id="qr-container">
+                            <h3>Scan to Copy Password</h3>
+                            <div id="qrcode"></div>
+                            <button class="action-btn" id="close-qr">
+                                <i class="fas fa-times"></i> Close QR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Password Manager Tab -->
+                <div class="tab-content" id="manager-tab">
+                    <div class="form-group">
+                        <label for="account-name">Account Name:</label>
+                        <input type="text" id="account-name" placeholder="e.g., Gmail, Facebook">
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username/Email:</label>
+                        <input type="text" id="username" placeholder="Your username or email">
+                    </div>
+                    
+                    <button class="generate-btn" id="save-to-vault">
+                        <i class="fas fa-plus"></i> Add to Vault
+                    </button>
+                    
+                    <div class="password-list" id="password-vault">
+                        <!-- Saved passwords will appear here -->
+                    </div>
+                    
+                    <div class="password-actions">
+                        <button class="action-btn" id="export-passwords">
+                            <i class="fas fa-file-export"></i> Export Vault
+                        </button>
+                        <button class="action-btn" id="import-passwords">
+                            <i class="fas fa-file-import"></i> Import Vault
+                        </button>
+                        <button class="action-btn" id="clear-vault" style="background-color: var(--danger);">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div class="tab-content" id="settings-tab">
+                    <div class="form-group">
+                        <label for="default-length">Default Password Length:</label>
+                        <input type="number" id="default-length" min="4" max="50" value="12">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="default-level">Default Security Level:</label>
+                        <select id="default-level">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                            <option value="impossible">Impossible</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="auto-copy" checked>
+                            <label for="auto-copy">Auto-copy password after generation</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="auto-save">
+                            <label for="auto-save">Auto-save to vault</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-timer" checked>
+                            <label for="show-timer">Show estimated cracking time</label>
+                        </div>
+                    </div>
+                    
+                    <button class="generate-btn" id="save-settings">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </main>
+        <footer>
+            © Made with ♥️ by Dave | ULTRA Password Generator v2.0
+        </footer>
+    </div>
+      <!-- Save Password Modal -->
+    <div class="modal" id="save-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Save Password</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="save-account">Account Name:</label>
+                <input type="text" id="save-account" placeholder="e.g., Gmail, Facebook">
+            </div>
+            <div class="form-group">
+                <label for="save-username">Username/Email:</label>
+                <input type="text" id="save-username" placeholder="Your username or email">
+            </div>
+            <button class="generate-btn" id="confirm-save">
+                <i class="fas fa-save"></i> Save Password
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const lengthSlider = document.getElementById('length');
+        const lengthInput = document.getElementById('length-input');
+        const lengthValue = document.getElementById('length-value');
+        const passwordType = document.getElementById('password-type');
+        const patternGroup = document.getElementById('pattern-group');
+        const passphraseGroup = document.getElementById('passphrase-group');
+        const patternInput = document.getElementById('pattern');
+        const wordCountSlider = document.getElementById('word-count');
+        const wordCountInput = document.getElementById('word-count-input');
+        const wordCountValue = document.getElementById('word-count-value');
+        const capitalizeWords = document.getElementById('capitalize-words');
+        const includeNumbers = document.getElementById('include-numbers');
+        const levelButtons = document.querySelectorAll('.level-btn');
+        const antiBruteforceCheckbox = document.getElementById('anti-bruteforce');
+        const avoidSimilarCheckbox = document.getElementById('avoid-similar');
+        const encryptPasswordCheckbox = document.getElementById('encrypt-password');
+        const generateButton = document.getElementById('generate');
+        const passwordOutput = document.getElementById('password-output');
+        const copyButton = document.getElementById('copy');
+        const downloadButton = document.getElementById('download');
+        const qrGeneratorButton = document.getElementById('qr-generator');
+        const savePasswordButton = document.getElementById('save-password');
+        const strengthFill = document.getElementById('strength-fill');
+        const strengthText = document.getElementById('strength-text');
+        const securityInfo = document.getElementById('security-info');
+        const qrContainer = document.getElementById('qr-container');
+        const closeQrButton = document.getElementById('close-qr');
+        const themeToggle = document.getElementById('theme-toggle');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const saveModal = document.getElementById('save-modal');
+        const closeModal = document.querySelector('.close-modal');
+        const confirmSave = document.getElementById('confirm-save');
+        const saveAccount = document.getElementById('save-account');
+        const saveUsername = document.getElementById('save-username');
+        const accountName = document.getElementById('account-name');
+        const username = document.getElementById('username');
+        const saveToVault = document.getElementById('save-to-vault');
+        const passwordVault = document.getElementById('password-vault');
+        const exportPasswords = document.getElementById('export-passwords');
+        const importPasswords = document.getElementById('import-passwords');
+        const clearVault = document.getElementById('clear-vault');
+        const defaultLength = document.getElementById('default-length');
+        const defaultLevel = document.getElementById('default-level');
+        const autoCopy = document.getElementById('auto-copy');
+        const autoSave = document.getElementById('auto-save');
+        const showTimer = document.getElementById('show-timer');
+        const saveSettings = document.getElementById('save-settings');
+        const hamburgerMenu = document.querySelector('.hamburger-menu');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+
+        // State variables
+        let currentLevel = 'medium';
+        let currentPassword = '';
+        let savedPasswords = JSON.parse(localStorage.getItem('passwordVault')) || [];
+        let settings = JSON.parse(localStorage.getItem('passwordGeneratorSettings')) || {
+            defaultLength: 12,
+            defaultLevel: 'medium',
+            autoCopy: true,
+            autoSave: false,
+            showTimer: true
+        };
+
+        // Word list for passphrases
+        const wordList = [
+            'apple', 'banana', 'carrot', 'dolphin', 'elephant', 'flamingo', 'giraffe', 'honey', 'iguana',
+            'jaguar', 'koala', 'lemon', 'mango', 'narwhal', 'orange', 'penguin', 'quokka', 'rabbit',
+            'strawberry', 'tiger', 'umbrella', 'violet', 'watermelon', 'xylophone', 'yak', 'zebra',
+            'astronaut', 'bicycle', 'camera', 'diamond', 'energy', 'forest', 'galaxy', 'horizon', 'island',
+            'journey', 'knight', 'lighthouse', 'mountain', 'nebula', 'ocean', 'planet', 'quantum', 'river',
+            'sunset', 'telescope', 'universe', 'volcano', 'waterfall', 'yesterday', 'zenith'
+        ];
+
+        // Initialize
+        function init() {
+            // Load settings
+            if (settings) {
+                defaultLength.value = settings.defaultLength;
+                defaultLevel.value = settings.defaultLevel;
+                autoCopy.checked = settings.autoCopy;
+                autoSave.checked = settings.autoSave;
+                showTimer.checked = settings.showTimer;
+                
+                // Apply settings
+                lengthSlider.value = settings.defaultLength;
+                lengthInput.value = settings.defaultLength;
+                lengthValue.textContent = settings.defaultLength;
+                
+                // Set active level button
+                levelButtons.forEach(btn => {
+                    if (btn.dataset.level === settings.defaultLevel) {
+                        btn.classList.add('active');
+                        currentLevel = settings.defaultLevel;
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Load saved passwords
+            renderPasswordVault();
+            
+            // Generate initial password
+            generatePassword();
+        }
+
+        // Event Listeners
+        lengthSlider.addEventListener('input', updateLength);
+        lengthInput.addEventListener('input', updateLengthFromInput);
+        wordCountSlider.addEventListener('input', updateWordCount);
+        wordCountInput.addEventListener('input', updateWordCountFromInput);
+        passwordType.addEventListener('change', handlePasswordTypeChange);
+        levelButtons.forEach(button => button.addEventListener('click', setLevel));
+        generateButton.addEventListener('click', generatePassword);
+        copyButton.addEventListener('click', copyPassword);
+        downloadButton.addEventListener('click', downloadPassword);
+        qrGeneratorButton.addEventListener('click', generateQRCode);
+        closeQrButton.addEventListener('click', () => qrContainer.classList.remove('active'));
+        savePasswordButton.addEventListener('click', () => saveModal.classList.add('active'));
+        closeModal.addEventListener('click', () => saveModal.classList.remove('active'));
+        confirmSave.addEventListener('click', savePasswordToVault);
+        saveToVault.addEventListener('click', saveFromManager);
+        exportPasswords.addEventListener('click', exportPasswordVault);
+        importPasswords.addEventListener('click', importPasswordVault);
+        clearVault.addEventListener('click', clearPasswordVault);
+        saveSettings.addEventListener('click', saveGeneratorSettings);
+        themeToggle.addEventListener('click', toggleTheme);
+        tabs.forEach(tab => tab.addEventListener('click', switchTab));
+        hamburgerMenu.addEventListener('click', toggleDropdown);
+        document.addEventListener('click', (e) => {
+            if (!hamburgerMenu.contains(e.target)) dropdownMenu.classList.remove('active');
+        });
+
+        // Functions
+        function updateLength() {
+            const value = lengthSlider.value;
+            lengthInput.value = value;
+            lengthValue.textContent = value;
+        }
+
+        function updateLengthFromInput() {
+            let value = parseInt(lengthInput.value);
+            if (value < 4) value = 4;
+            if (value > 50) value = 50;
+            lengthSlider.value = value;
+            lengthInput.value = value;
+            lengthValue.textContent = value;
+        }
+
+        function updateWordCount() {
+            const value = wordCountSlider.value;
+            wordCountInput.value = value;
+            wordCountValue.textContent = value;
+        }
+
+        function updateWordCountFromInput() {
+            let value = parseInt(wordCountInput.value);
+            if (value < 2) value = 2;
+            if (value > 10) value = 10;
+            wordCountSlider.value = value;
+            wordCountInput.value = value;
+            wordCountValue.textContent = value;
+        }
+
+        function handlePasswordTypeChange() {
+            const type = passwordType.value;
+            patternGroup.style.display = type === 'pattern' ? 'block' : 'none';
+            passphraseGroup.style.display = type === 'passphrase' ? 'block' : 'none';
+        }
+
+        function setLevel(e) {
+            levelButtons.forEach(button => button.classList.remove('active'));
+            e.target.classList.add('active');
+            currentLevel = e.target.dataset.level;
+        }
+
+        function toggleDropdown() {
+            dropdownMenu.classList.toggle('active');
+        }
+
+        function switchTab(e) {
+            const tabId = e.target.dataset.tab;
+            
+            // Update tabs
+            tabs.forEach(tab => tab.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            // Update tab content
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tabId}-tab`) {
+                    content.classList.add('active');
+                }
+            });
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const icon = themeToggle.querySelector('i');
+            if (document.body.classList.contains('light-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        function generatePassword() {
+            const length = parseInt(lengthSlider.value);
+            const useAntiBruteforce = antiBruteforceCheckbox.checked;
+            const avoidSimilar = avoidSimilarCheckbox.checked;
+            const type = passwordType.value;
+            
+            let password = '';
+            
+            switch(type) {
+                case 'random':
+                    password = generateRandomPassword(length, avoidSimilar);
+                    break;
+                case 'pattern':
+                    password = generatePatternPassword(patternInput.value, avoidSimilar);
+                    break;
+                case 'passphrase':
+                    const wordCount = parseInt(wordCountSlider.value);
+                    password = generatePassphrase(wordCount, capitalizeWords.checked, includeNumbers.checked);
+                    break;
+                case 'pin':
+                    password = generatePIN(length);
+                    break;
+            }
+            
+            if (useAntiBruteforce && type !== 'passphrase') {
+                password = applyAntiBruteforce(password);
+            }
+            
+            if (encryptPasswordCheckbox.checked) {
+                password = encryptPassword(password);
+            }
+            
+            currentPassword = password;
+            passwordOutput.textContent = password;
+            updateStrengthMeter(password);
+            
+            if (settings.autoCopy) {
+                copyPassword();
+            }
+        }
+
+        function generateRandomPassword(length, avoidSimilar) {
+            let charset = '';
+            switch(currentLevel) {
+                case 'easy':
+                    charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    break;
+                case 'medium':
+                    charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    break;
+                case 'hard':
+                    charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+                    break;
+                case 'impossible':
+                    charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?~`';
+                    break;
+            }
+            
+            if (avoidSimilar) {
+                charset = charset.replace(/[il1IoO0]/g, '');
+            }
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                password += charset[randomIndex];
+            }
+            
+            return password;
+        }
+
+        function generatePatternPassword(pattern, avoidSimilar) {
+            const charTypes = {
+                'L': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                'D': '0123456789',
+                'S': '!@#$%^&*()_+-=[]{}|;:,.<>?'
+            };
+            
+            if (avoidSimilar) {
+                charTypes['L'] = charTypes['L'].replace(/[il1IoO0]/g, '');
+            }
+            
+            let password = '';
+            for (let char of pattern) {
+                const charset = charTypes[char.toUpperCase()] || char;
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                password += charset[randomIndex];
+            }
+            
+            return password;
+        }
+
+        function generatePassphrase(wordCount, capitalize, includeNumbers) {
+            let passphrase = '';
+            
+            for (let i = 0; i < wordCount; i++) {
+                const randomIndex = Math.floor(Math.random() * wordList.length);
+                let word = wordList[randomIndex];
+                
+                if (capitalize && Math.random() > 0.5) {
+                    word = word.charAt(0).toUpperCase() + word.slice(1);
+                }
+                
+                passphrase += word;
+                
+                if (i < wordCount - 1) {
+                    if (includeNumbers && Math.random() > 0.7) {
+                        passphrase += Math.floor(Math.random() * 10);
+                    } else {
+                        passphrase += '-';
+                    }
+                }
+            }
+            
+            return passphrase;
+        }
+
+        function generatePIN(length) {
+            let pin = '';
+            for (let i = 0; i < length; i++) {
+                pin += Math.floor(Math.random() * 10);
+            }
+            return pin;
+        }
+
+        function applyAntiBruteforce(password) {
+            // Add random special characters to make brute force attacks harder
+            const specialChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            const positions = [];
+            
+            // Determine how many special characters to add based on password length
+            const numToAdd = Math.max(1, Math.floor(password.length / 5));
+            
+            for (let i = 0; i < numToAdd; i++) {
+                const randomPos = Math.floor(Math.random() * password.length);
+                const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+                
+                // Insert at random position
+                password = password.slice(0, randomPos) + randomChar + password.slice(randomPos);
+            }
+            
+            return password;
+        }
+
+        function encryptPassword(password) {
+            // Simple XOR encryption for demonstration
+            // In a real application, use a proper encryption library
+            const key = 'ultra-secret-key';
+            let encrypted = '';
+            
+            for (let i = 0; i < password.length; i++) {
+                const charCode = password.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+                encrypted += String.fromCharCode(charCode);
+            }
+            
+            return btoa(encrypted); // Base64 encode
+        }
+
+        function decryptPassword(encryptedPassword) {
+            try {
+                const decoded = atob(encryptedPassword);
+                const key = 'ultra-secret-key';
+                let decrypted = '';
+                
+                for (let i = 0; i < decoded.length; i++) {
+                    const charCode = decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+                    decrypted += String.fromCharCode(charCode);
+                }
+                
+                return decrypted;
+            } catch (e) {
+                return encryptedPassword; // Return as is if not encrypted
+            }
+        }
+
+        function updateStrengthMeter(password) {
+            let strength = 0;
+            let feedback = '';
+            
+            // Length check
+            if (password.length >= 12) strength += 25;
+            else if (password.length >= 8) strength += 15;
+            else strength += 5;
+            
+            // Character variety checks
+            if (/[a-z]/.test(password)) strength += 10;
+            if (/[A-Z]/.test(password)) strength += 10;
+            if (/[0-9]/.test(password)) strength += 10;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
+            
+            // Pattern checks
+            if (!/(.)\1{2,}/.test(password)) strength += 10; // No repeated characters
+            if (!/(123|abc|password|qwerty)/i.test(password)) strength += 10; // No common patterns
+            if (password.length > 14) strength += 10; // Bonus for long passwords
+            
+            // Cap at 100
+            strength = Math.min(strength, 100);
+            
+            // Set strength meter color and text
+            let color, text;
+            if (strength < 30) {
+                color = 'var(--danger)';
+                text = 'Very Weak';
+            } else if (strength < 50) {
+                color = 'var(--warning)';
+                text = 'Weak';
+            } else if (strength < 70) {
+                color = 'var(--info)';
+                text = 'Medium';
+            } else if (strength < 90) {
+                color = 'var(--success)';
+                text = 'Strong';
+            } else {
+                color = '#00ff00';
+                text = 'Very Strong';
+            }
+            
+            strengthFill.style.width = `${strength}%`;
+            strengthFill.style.backgroundColor = color;
+            strengthText.textContent = `Strength: ${text} (${strength}%)`;
+            
+            // Calculate and display estimated cracking time
+            if (showTimer.checked) {
+                const timeToCrack = calculateCrackingTime(password);
+                securityInfo.innerHTML = `<i class="fas fa-shield-alt"></i> Estimated cracking time: ${timeToCrack}`;
+            } else {
+                securityInfo.innerHTML = '';
+            }
+        }
+
+        function calculateCrackingTime(password) {
+            // Simplified calculation based on password complexity
+            const charsetSize = getCharsetSize(password);
+            const combinations = Math.pow(charsetSize, password.length);
+            
+            // Assuming 10^12 attempts per second (modern supercomputer)
+            const seconds = combinations / 1e12;
+            
+            if (seconds < 1) return "Instantly";
+            if (seconds < 60) return `${Math.round(seconds)} seconds`;
+            if (seconds < 3600) return `${Math.round(seconds / 60)} minutes`;
+            if (seconds < 86400) return `${Math.round(seconds / 3600)} hours`;
+            if (seconds < 31536000) return `${Math.round(seconds / 86400)} days`;
+            if (seconds < 3153600000) return `${Math.round(seconds / 31536000)} years`;
+            return `${Math.round(seconds / 31536000000)} centuries`;
+        }
+
+        function getCharsetSize(password) {
+            let size = 0;
+            if (/[a-z]/.test(password)) size += 26;
+            if (/[A-Z]/.test(password)) size += 26;
+            if (/[0-9]/.test(password)) size += 10;
+            if (/[^a-zA-Z0-9]/.test(password)) size += 32; // Approximate number of common special chars
+            return size;
+        }
+
+        function copyPassword() {
+            if (!currentPassword) return;
+            
+            navigator.clipboard.writeText(decryptPassword(currentPassword)).then(() => {
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    copyButton.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        function downloadPassword() {
+            if (!currentPassword) return;
+            
+            const element = document.createElement('a');
+            const file = new Blob([`Password: ${decryptPassword(currentPassword)}\nGenerated on: ${new Date().toLocaleString()}\nStrength: ${strengthText.textContent}`], {type: 'text/plain'});
+            element.href = URL.createObjectURL(file);
+            element.download = 'password.txt';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function generateQRCode() {
+            if (!currentPassword) return;
+            
+            qrContainer.classList.add('active');
+            document.getElementById('qrcode').innerHTML = '';
+            
+            QRCode.toCanvas(document.getElementById('qrcode'), decryptPassword(currentPassword), function (error) {
+                if (error) console.error(error);
+            });
+        }
+
+        function savePasswordToVault() {
+            const account = saveAccount.value.trim();
+            const user = saveUsername.value.trim();
+            
+            if (!account || !user || !currentPassword) {
+                alert('Please fill in all fields and generate a password first.');
+                return;
+            }
+            
+            const passwordData = {
+                id: Date.now(),
+                account: account,
+                username: user,
+                password: currentPassword,
+                date: new Date().toLocaleString()
+            };
+            
+            savedPasswords.push(passwordData);
+            localStorage.setItem('passwordVault', JSON.stringify(savedPasswords));
+            
+            saveAccount.value = '';
+            saveUsername.value = '';
+            saveModal.classList.remove('active');
+            
+            renderPasswordVault();
+            alert('Password saved to vault!');
+        }
+
+        function saveFromManager() {
+            const account = accountName.value.trim();
+            const user = username.value.trim();
+            
+            if (!account || !user) {
+                alert('Please fill in account name and username.');
+                return;
+            }
+            
+            if (!currentPassword) {
+                generatePassword();
+            }
+            
+            const passwordData = {
+                id: Date.now(),
+                account: account,
+                username: user,
+                password: currentPassword,
+                date: new Date().toLocaleString()
+            };
+            
+            savedPasswords.push(passwordData);
+            localStorage.setItem('passwordVault', JSON.stringify(savedPasswords));
+            
+            accountName.value = '';
+            username.value = '';
+            
+            renderPasswordVault();
+            alert('Password saved to vault!');
+        }
+
+        function renderPasswordVault() {
+            passwordVault.innerHTML = '';
+            
+            if (savedPasswords.length === 0) {
+                passwordVault.innerHTML = '<p style="text-align: center; padding: 20px;">No passwords saved yet.</p>';
+                return;
+            }
+            
+            savedPasswords.forEach(item => {
+                const passwordItem = document.createElement('div');
+                passwordItem.className = 'password-item';
+                
+                passwordItem.innerHTML = `
+                    <div class="password-item-info">
+                        <strong>${item.account}</strong>
+                        <span>${item.username}</span>
+                        <small>Created: ${item.date}</small>
+                    </div>
+                    <div class="password-item-actions">
+                        <button class="password-item-btn view-password" data-id="${item.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="password-item-btn copy-password" data-id="${item.id}">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="password-item-btn delete-password" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                passwordVault.appendChild(passwordItem);
+            });
+            
+            // Add event listeners for the new buttons
+            document.querySelectorAll('.view-password').forEach(btn => {
+                btn.addEventListener('click', viewPassword);
+            });
+            
+            document.querySelectorAll('.copy-password').forEach(btn => {
+                btn.addEventListener('click', copySavedPassword);
+            });
+            
+            document.querySelectorAll('.delete-password').forEach(btn => {
+                btn.addEventListener('click', deletePassword);
+            });
+        }
+
+        function viewPassword(e) {
+            const id = parseInt(e.target.closest('button').dataset.id);
+            const item = savedPasswords.find(p => p.id === id);
+            
+            if (item) {
+                const decryptedPassword = decryptPassword(item.password);
+                alert(`Password for ${item.account} (${item.username}): ${decryptedPassword}`);
+            }
+        }
+
+        function copySavedPassword(e) {
+            const id = parseInt(e.target.closest('button').dataset.id);
+            const item = savedPasswords.find(p => p.id === id);
+            
+            if (item) {
+                navigator.clipboard.writeText(decryptPassword(item.password)).then(() => {
+                    const btn = e.target.closest('button');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                    }, 2000);
+                });
+            }
+        }
+
+        function deletePassword(e) {
+            const id = parseInt(e.target.closest('button').dataset.id);
+            
+            if (confirm('Are you sure you want to delete this password?')) {
+                savedPasswords = savedPasswords.filter(p => p.id !== id);
+                localStorage.setItem('passwordVault', JSON.stringify(savedPasswords));
+                renderPasswordVault();
+            }
+        }
+
+        function exportPasswordVault() {
+            if (savedPasswords.length === 0) {
+                alert('No passwords to export.');
+                return;
+            }
+            
+            const exportData = savedPasswords.map(item => ({
+                ...item,
+                password: decryptPassword(item.password)
+            }));
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const element = document.createElement('a');
+            element.href = URL.createObjectURL(dataBlob);
+            element.download = 'password-vault.json';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function importPasswordVault() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        
+                        if (Array.isArray(importedData)) {
+                            // Re-encrypt passwords during import
+                            const encryptedData = importedData.map(item => ({
+                                ...item,
+                                password: encryptPassword(item.password),
+                                id: item.id || Date.now() + Math.random()
+                            }));
+                            
+                            savedPasswords = [...savedPasswords, ...encryptedData];
+                            localStorage.setItem('passwordVault', JSON.stringify(savedPasswords));
+                            renderPasswordVault();
+                            alert('Passwords imported successfully!');
+                        } else {
+                            alert('Invalid file format.');
+                        }
+                    } catch (error) {
+                        alert('Error reading file: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function clearPasswordVault() {
+            if (confirm('Are you sure you want to delete ALL saved passwords? This action cannot be undone.')) {
+                savedPasswords = [];
+                localStorage.removeItem('passwordVault');
+                renderPasswordVault();
+            }
+        }
+
+        function saveGeneratorSettings() {
+            settings = {
+                defaultLength: parseInt(defaultLength.value),
+                defaultLevel: defaultLevel.value,
+                autoCopy: autoCopy.checked,
+                autoSave: autoSave.checked,
+                showTimer: showTimer.checked
+            };
+            
+            localStorage.setItem('passwordGeneratorSettings', JSON.stringify(settings));
+            alert('Settings saved!');
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
