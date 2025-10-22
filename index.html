@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTRA Password Generator</title>
+    <title>Password Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
@@ -489,15 +489,13 @@
         </header>
         <main>
             <div class="card">
-                <h1><i class="fas fa-user-secret"></i> ULTRA Password Generator</h1>
+                <h1><i class="fas fa-user-secret"></i>Password Generator</h1>
                 
                 <div class="tabs">
                     <button class="tab active" data-tab="generator">Generator</button>
                     <button class="tab" data-tab="manager">Password Manager</button>
                     <button class="tab" data-tab="settings">Settings</button>
                 </div>
-                
-                <!-- Generator Tab -->
                 <div class="tab-content active" id="generator-tab">
                     <div class="form-group">
                         <label for="password-type">Password Type:</label>
@@ -605,8 +603,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Password Manager Tab -->
                 <div class="tab-content" id="manager-tab">
                     <div class="form-group">
                         <label for="account-name">Account Name:</label>
@@ -622,7 +618,6 @@
                     </button>
                     
                     <div class="password-list" id="password-vault">
-                        <!-- Saved passwords will appear here -->
                     </div>
                     
                     <div class="password-actions">
@@ -637,8 +632,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- Settings Tab -->
                 <div class="tab-content" id="settings-tab">
                     <div class="form-group">
                         <label for="default-length">Default Password Length:</label>
@@ -677,10 +670,9 @@
             </div>
         </main>
         <footer>
-            © Made with ♥️ by Dave | ULTRA Password Generator v2.0
+            © Made with ♥️ by Dave | Password Generator v2.0
         </footer>
     </div>
-      <!-- Save Password Modal -->
     <div class="modal" id="save-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -702,7 +694,6 @@
     </div>
 
     <script>
-        // DOM Elements
         const lengthSlider = document.getElementById('length');
         const lengthInput = document.getElementById('length-input');
         const lengthValue = document.getElementById('length-value');
@@ -753,8 +744,6 @@
         const saveSettings = document.getElementById('save-settings');
         const hamburgerMenu = document.querySelector('.hamburger-menu');
         const dropdownMenu = document.querySelector('.dropdown-menu');
-
-        // State variables
         let currentLevel = 'medium';
         let currentPassword = '';
         let savedPasswords = JSON.parse(localStorage.getItem('passwordVault')) || [];
@@ -765,8 +754,6 @@
             autoSave: false,
             showTimer: true
         };
-
-        // Word list for passphrases
         const wordList = [
             'apple', 'banana', 'carrot', 'dolphin', 'elephant', 'flamingo', 'giraffe', 'honey', 'iguana',
             'jaguar', 'koala', 'lemon', 'mango', 'narwhal', 'orange', 'penguin', 'quokka', 'rabbit',
@@ -776,22 +763,16 @@
             'sunset', 'telescope', 'universe', 'volcano', 'waterfall', 'yesterday', 'zenith'
         ];
 
-        // Initialize
         function init() {
-            // Load settings
             if (settings) {
                 defaultLength.value = settings.defaultLength;
                 defaultLevel.value = settings.defaultLevel;
                 autoCopy.checked = settings.autoCopy;
                 autoSave.checked = settings.autoSave;
                 showTimer.checked = settings.showTimer;
-                
-                // Apply settings
                 lengthSlider.value = settings.defaultLength;
                 lengthInput.value = settings.defaultLength;
                 lengthValue.textContent = settings.defaultLength;
-                
-                // Set active level button
                 levelButtons.forEach(btn => {
                     if (btn.dataset.level === settings.defaultLevel) {
                         btn.classList.add('active');
@@ -801,15 +782,9 @@
                     }
                 });
             }
-            
-            // Load saved passwords
             renderPasswordVault();
-            
-            // Generate initial password
             generatePassword();
         }
-
-        // Event Listeners
         lengthSlider.addEventListener('input', updateLength);
         lengthInput.addEventListener('input', updateLengthFromInput);
         wordCountSlider.addEventListener('input', updateWordCount);
@@ -835,8 +810,6 @@
         document.addEventListener('click', (e) => {
             if (!hamburgerMenu.contains(e.target)) dropdownMenu.classList.remove('active');
         });
-
-        // Functions
         function updateLength() {
             const value = lengthSlider.value;
             lengthInput.value = value;
@@ -885,12 +858,8 @@
 
         function switchTab(e) {
             const tabId = e.target.dataset.tab;
-            
-            // Update tabs
             tabs.forEach(tab => tab.classList.remove('active'));
             e.target.classList.add('active');
-            
-            // Update tab content
             tabContents.forEach(content => {
                 content.classList.remove('active');
                 if (content.id === `${tabId}-tab`) {
@@ -1037,18 +1006,13 @@
         }
 
         function applyAntiBruteforce(password) {
-            // Add random special characters to make brute force attacks harder
             const specialChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
             const positions = [];
-            
-            // Determine how many special characters to add based on password length
             const numToAdd = Math.max(1, Math.floor(password.length / 5));
             
             for (let i = 0; i < numToAdd; i++) {
                 const randomPos = Math.floor(Math.random() * password.length);
                 const randomChar = specialChars[Math.floor(Math.random() * specialChars.length)];
-                
-                // Insert at random position
                 password = password.slice(0, randomPos) + randomChar + password.slice(randomPos);
             }
             
@@ -1056,8 +1020,6 @@
         }
 
         function encryptPassword(password) {
-            // Simple XOR encryption for demonstration
-            // In a real application, use a proper encryption library
             const key = 'ultra-secret-key';
             let encrypted = '';
             
@@ -1066,7 +1028,7 @@
                 encrypted += String.fromCharCode(charCode);
             }
             
-            return btoa(encrypted); // Base64 encode
+            return btoa(encrypted);
         }
 
         function decryptPassword(encryptedPassword) {
@@ -1082,34 +1044,26 @@
                 
                 return decrypted;
             } catch (e) {
-                return encryptedPassword; // Return as is if not encrypted
+                return encryptedPassword;
             }
         }
 
         function updateStrengthMeter(password) {
             let strength = 0;
             let feedback = '';
-            
-            // Length check
             if (password.length >= 12) strength += 25;
             else if (password.length >= 8) strength += 15;
             else strength += 5;
-            
-            // Character variety checks
             if (/[a-z]/.test(password)) strength += 10;
             if (/[A-Z]/.test(password)) strength += 10;
             if (/[0-9]/.test(password)) strength += 10;
             if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
-            
-            // Pattern checks
-            if (!/(.)\1{2,}/.test(password)) strength += 10; // No repeated characters
-            if (!/(123|abc|password|qwerty)/i.test(password)) strength += 10; // No common patterns
-            if (password.length > 14) strength += 10; // Bonus for long passwords
-            
-            // Cap at 100
+            if (!/(.)\1{2,}/.test(password)) strength += 10;
+            if (!/(123|abc|password|qwerty)/i.test(password)) strength += 10;
+            if (password.length > 14) strength += 10; 
             strength = Math.min(strength, 100);
             
-            // Set strength meter color and text
+        
             let color, text;
             if (strength < 30) {
                 color = 'var(--danger)';
@@ -1132,7 +1086,7 @@
             strengthFill.style.backgroundColor = color;
             strengthText.textContent = `Strength: ${text} (${strength}%)`;
             
-            // Calculate and display estimated cracking time
+            
             if (showTimer.checked) {
                 const timeToCrack = calculateCrackingTime(password);
                 securityInfo.innerHTML = `<i class="fas fa-shield-alt"></i> Estimated cracking time: ${timeToCrack}`;
